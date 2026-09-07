@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Patterns Master Cheatsheet & Visualizer</title>
+    <!-- Chosen Palette: Slate & Soft Indigo Neutrals -->
+    <!-- Application Structure Plan: A comprehensive 5-view single-page interactive application designed for algorithmic learning and rapid competitive programming revision. It integrates: 1) Interactive Pattern Identifier Quiz to map problem conditions to patterns; 2) Deep-Dive Modules for Two Pointers, Sliding Window, Kadane's Algorithm, and Prefix Sum featuring 1-liner mind maps, detailed question taxonomies, tweak alerts, and robust C++ templates with one-click copying; 3) Live HTML5 Canvas Visual Step Simulator for real-time pointer/window execution; 4) Searchable Master Tweak Matrix detailing edge-case transformations; 5) Chart.js Complexity Visualizer. This architecture decouples algorithm theory into intuitive, interactive components to maximize developer retention and immediate problem-solving application. -->
+    <!-- Visualization & Content Choices: 1. Mind Maps & Taxonomies -> Goal: High-level conceptual anchor -> Structured HTML cards with Tailwind badges -> Justification: Allows quick scanning and categorization. 2. Code Templates -> Goal: Production-ready C++ code -> HTML <pre><code> blocks with tabbed navigation and JS copy triggers -> Justification: Clean display of idiomatic C++ code. 3. Interactive Array Execution Visualizer -> Goal: Procedural execution intuition -> Native HTML5 Canvas rendering step-by-step array highlighting and pointer markers -> Justification: Canvas provides fast, dependency-free graphics without SVG or Mermaid JS. 4. Complexity Benchmark Chart -> Goal: Quantitative space/time comparison -> Chart.js Canvas horizontal bar chart -> Justification: Clear standard visual representation of complexity metrics. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-indigo-500 selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur border-b border-slate-800 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-extrabold text-lg text-white font-mono shadow-inner">
+                    &lt;/&gt;
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-tight text-slate-100">DSA Patterns Explorer</h1>
+                    <p class="text-xs text-indigo-400 font-medium">C++ Mind Maps, Templates & Interactive Simulator</p>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex space-x-1 text-sm font-medium">
+                <button onclick="scrollToSection('quiz-section')" class="px-3 py-1.5 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition">Decision Engine</button>
+                <button onclick="scrollToSection('two-pointers')" class="px-3 py-1.5 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition">Two Pointers</button>
+                <button onclick="scrollToSection('sliding-window')" class="px-3 py-1.5 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition">Sliding Window</button>
+                <button onclick="scrollToSection('kadanes')" class="px-3 py-1.5 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition">Kadane's</button>
+                <button onclick="scrollToSection('prefix-sum')" class="px-3 py-1.5 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition">Prefix Sum</button>
+                <button onclick="scrollToSection('simulator-section')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md transition font-semibold">Live Visualizer</button>
+            </nav>
+
+            <div class="md:hidden">
+                <select id="mobile-nav" onchange="scrollToSection(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-md px-2 py-1.5 focus:outline-none">
+                    <option value="quiz-section">Decision Engine</option>
+                    <option value="two-pointers">1. Two Pointers</option>
+                    <option value="sliding-window">2. Sliding Window</option>
+                    <option value="kadanes">3. Kadane's Algorithm</option>
+                    <option value="prefix-sum">4. Prefix Sum</option>
+                    <option value="simulator-section">Live Visualizer</option>
+                    <option value="matrix-section">Tweaks Matrix</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <section class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 md:p-10 text-white shadow-2xl relative overflow-hidden">
+            <div class="max-w-3xl space-y-4 relative z-10">
+                <div class="inline-flex items-center space-x-2 bg-indigo-500/20 border border-indigo-400/30 px-3 py-1 rounded-full text-xs font-semibold text-indigo-300">
+                    <span>&#128161; Algorithmic Mastery Guide</span>
+                    <span>&bull;</span>
+                    <span>C++ Templates Included</span>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                    Four Core Array Patterns. Zero Confusion.
+                </h2>
+                <p class="text-slate-300 text-base md:text-lg leading-relaxed">
+                    Master the essential logic behind Two Pointers, Sliding Window, Kadane's Algorithm, and Prefix Sum. Discover exact question indicators, edge-case tweaks, copyable standard templates, and visual execution steps.
+                </p>
+                <div class="pt-2 flex flex-wrap gap-3 text-xs font-mono">
+                    <span class="bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-lg text-indigo-300">Target Sums</span>
+                    <span class="bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-lg text-emerald-300">Subarray Optimization</span>
+                    <span class="bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-lg text-amber-300">Max Subarrays</span>
+                    <span class="bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-lg text-cyan-300">Range Queries $O(1)$</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz-section" class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Decision Engine</span>
+                <h3 class="text-2xl font-bold text-slate-900">Which Pattern Should You Use?</h3>
+                <p class="text-slate-600 text-sm mt-1">
+                    Select your problem constraints below to identify the optimal algorithm pattern and required tweaks instantly.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold uppercase text-slate-700">1. Data Sequence Trait</label>
+                    <select id="trait-input" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="sorted">Sorted Array / Can be sorted</option>
+                        <option value="contiguous">Unsorted Contiguous Subarray</option>
+                        <option value="static-range">Static Array Range Querying</option>
+                        <option value="string">String / Characters Sequence</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold uppercase text-slate-700">2. Target Goal</label>
+                    <select id="goal-input" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="pair">Find Pair / Triplet with Target Sum</option>
+                        <option value="max-sum">Max / Min Contiguous Subarray Sum</option>
+                        <option value="exact-k">Subarrays where Sum / Condition = K</option>
+                        <option value="in-place">In-place Element Removal / Duplicates</option>
+                        <option value="range-o1">Multiple Range Queries in O(1) Time</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold uppercase text-slate-700">3. Element Constraints</label>
+                    <select id="constraint-input" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <option value="positives">All Positive Numbers / Chars</option>
+                        <option value="negatives">Includes Negative Numbers</option>
+                        <option value="circular">Circular Array / Wrapping End</option>
+                        <option value="duplicates">Contains Duplicate Values</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="quiz-result" class="mt-6 bg-slate-900 text-white rounded-xl p-5 border-l-4 border-indigo-500 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span id="recommended-pattern" class="text-xl font-extrabold text-indigo-400">Recommended Pattern: Two Pointers</span>
+                    <span id="recommended-complexity" class="bg-indigo-900/80 border border-indigo-700/50 text-indigo-200 text-xs px-2.5 py-1 rounded font-mono">Time: O(N) | Space: O(1)</span>
+                </div>
+                <p id="recommended-desc" class="text-slate-300 text-sm leading-relaxed">
+                    Use two pointers starting at opposite ends (left=0, right=n-1). Move pointers inward based on whether current sum is smaller or larger than target.
+                </p>
+                <div id="recommended-tweak" class="bg-indigo-950/80 border border-indigo-800/40 p-3 rounded-lg text-xs text-amber-300 font-mono">
+                    &#9888;&#65039; Tweak Alert: If duplicate tuples are disallowed, advance pointers past matching adjacent elements after finding a valid match.
+                </div>
+            </div>
+        </section>
+
+        <section id="two-pointers" class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded">Pattern 1</span>
+                        <h3 class="text-2xl font-bold text-slate-900">Two Pointers</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm mt-1">Opposite ends, fast/slow tracking, or inward traversal on sequential data.</p>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-xs text-indigo-900 font-mono">
+                    <strong class="text-indigo-900 uppercase block font-bold">Mind Map:</strong>
+                    "Use two index markers moving towards or alongside each other to search, compare, or modify linear structures in O(N) time without extra memory."
+                </div>
+            </div>
+
+            <p class="text-slate-700 text-sm leading-relaxed">
+                The Two Pointers pattern utilizes structural order (usually sorted arrays or monotonic sequences) to discard large search spaces without checking every combination. By moving pointers based on strict inequality logic, nested loop operations drop from $O(N^2)$ down to $O(N)$.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-indigo-600">&#9670;</span> Question Taxonomies & Triggers
+                    </h4>
+                    <ul class="space-y-2 text-xs text-slate-700">
+                        <li class="flex items-start">
+                            <span class="text-indigo-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Target Pair / Triplet Finding:</strong> Given a <i>sorted</i> array, find two/three numbers that sum to target (e.g., Two Sum II, 3Sum, 4Sum).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-600 font-bold mr-2">&bull;</span>
+                            <div><strong>In-Place Modification:</strong> Fast/Slow pointers to remove duplicates or shift zeroes in $O(1)$ space (e.g., Remove Duplicates from Sorted Array).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Palindrome & Reversal:</strong> Check if string is palindrome or reverse elements by swapping inward.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Container Boundaries:</strong> Trapping Rain Water, Container With Most Water using boundary pointers.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 rounded-xl p-5 border border-amber-200 space-y-3">
+                    <h4 class="font-bold text-amber-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-amber-600">&#9888;&#65039;</span> When & Where Tweaks Exist
+                    </h4>
+                    <ul class="space-y-2 text-xs text-amber-900">
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">1.</span>
+                            <div><strong>Unsorted Array with Index Preservation:</strong> If original indices must be returned and array cannot be sorted, standard two pointers fails! <i>Tweak:</i> Use Hash Map ($O(N)$ space) or store <code>{val, index}</code> pairs before sorting.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">2.</span>
+                            <div><strong>Skipping Duplicates in Triplet Search:</strong> To avoid duplicate triplets in 3Sum, sort array first, then skip identical adjacent values using <code>while(arr[i] == arr[i-1])</code> and advance inner pointers past matching elements.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">3.</span>
+                            <div><strong>Fast & Slow Cycle Detection:</strong> In Linked Lists or functional loops, move <code>slow</code> by 1 step and <code>fast</code> by 2 steps (Floyd's algorithm).</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
+                <div class="bg-slate-800 px-4 py-3 flex items-center justify-between text-xs text-slate-300 font-mono">
+                    <div class="flex space-x-2">
+                        <button onclick="switchTemplate('tp-template-1')" class="tp-tab px-3 py-1 rounded bg-indigo-600 text-white font-semibold">Opposite Ends (Two Sum II)</button>
+                        <button onclick="switchTemplate('tp-template-2')" class="tp-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">Fast & Slow (In-Place)</button>
+                        <button onclick="switchTemplate('tp-template-3')" class="tp-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">3Sum (With Duplicate Skipping)</button>
+                    </div>
+                    <button onclick="copyCode('tp-code-block')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-xs transition">Copy C++</button>
+                </div>
+                <div class="p-4 font-mono text-xs text-indigo-200 overflow-x-auto">
+                    <pre id="tp-code-block"><code>int twoPointersOpposite(vector&lt;int&gt;&amp; arr, int target) {
+    // Array MUST be sorted for target sum search
+    int left = 0;
+    int right = arr.size() - 1;
+
+    while (left &lt; right) {
+        int currentSum = arr[left] + arr[right];
+        if (currentSum == target) {
+            return 1; // Found pair
+        } else if (currentSum &lt; target) {
+            left++; // Need larger sum, move left pointer right
+        } else {
+            right--; // Need smaller sum, move right pointer left
+        }
+    }
+    return 0; // Not found
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="sliding-window" class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded">Pattern 2</span>
+                        <h3 class="text-2xl font-bold text-slate-900">Sliding Window</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm mt-1">Maintain a dynamic contiguous sub-segment [L, R] over an array or string.</p>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-xs text-emerald-900 font-mono">
+                    <strong class="text-emerald-900 uppercase block font-bold">Mind Map:</strong>
+                    "Expand the right pointer to include elements; shrink the left pointer when conditions break. Computes contiguous segment properties in O(N)."
+                </div>
+            </div>
+
+            <p class="text-slate-700 text-sm leading-relaxed">
+                Sliding Window maintains running metrics over a continuous window. Instead of recalculating sub-segment properties from scratch (which takes $O(K)$ or $O(N)$ per element), it updates metrics incrementally by adding the incoming element at <code>right</code> and removing the outgoing element at <code>left</code>.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-emerald-600">&#9670;</span> Question Taxonomies & Triggers
+                    </h4>
+                    <ul class="space-y-2 text-xs text-slate-700">
+                        <li class="flex items-start">
+                            <span class="text-emerald-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Fixed Window Size K:</strong> Maximum/minimum sum or average of contiguous subarray of exact size $K$.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-emerald-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Variable Window - Max Length:</strong> Find longest contiguous substring/subarray satisfying condition (e.g., Longest Substring Without Repeating Characters).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-emerald-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Variable Window - Min Length:</strong> Find shortest contiguous subarray whose sum is $\ge$ target (e.g., Minimum Size Subarray Sum).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-emerald-600 font-bold mr-2">&bull;</span>
+                            <div><strong>String Anagrams & Frequency Matching:</strong> Permutation in String, Find All Anagrams using frequency maps.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 rounded-xl p-5 border border-amber-200 space-y-3">
+                    <h4 class="font-bold text-amber-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-amber-600">&#9888;&#65039;</span> When & Where Tweaks Exist
+                    </h4>
+                    <ul class="space-y-2 text-xs text-amber-900">
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">1.</span>
+                            <div><strong>Arrays with Negative Numbers:</strong> Standard sliding window breaks completely if the array contains negative numbers because adding an element no longer guarantees monotonic sum growth! <i>Tweak:</i> Switch to <strong>Prefix Sum + Hash Map</strong> or Monotonic Queue.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">2.</span>
+                            <div><strong>"At Most K" trick for "Exactly K":</strong> To count subarrays with <i>Exactly K</i> distinct elements, calculate: <code>atMost(K) - atMost(K - 1)</code>.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">3.</span>
+                            <div><strong>Min Window vs Max Window Shrink Condition:</strong> Max Length problems shrink with <code>while(invalid)</code>; Min Length problems shrink with <code>while(valid)</code> to minimize size.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
+                <div class="bg-slate-800 px-4 py-3 flex items-center justify-between text-xs text-slate-300 font-mono">
+                    <div class="flex space-x-2">
+                        <button onclick="switchTemplate('sw-template-1')" class="sw-tab px-3 py-1 rounded bg-emerald-600 text-white font-semibold">Fixed Size K</button>
+                        <button onclick="switchTemplate('sw-template-2')" class="sw-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">Variable (Max Length)</button>
+                        <button onclick="switchTemplate('sw-template-3')" class="sw-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">Variable (Min Length)</button>
+                    </div>
+                    <button onclick="copyCode('sw-code-block')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-xs transition">Copy C++</button>
+                </div>
+                <div class="p-4 font-mono text-xs text-emerald-200 overflow-x-auto">
+                    <pre id="sw-code-block"><code>int maxSubarraySumFixed(vector&lt;int&gt;&amp; arr, int k) {
+    if (arr.size() &lt; k) return 0;
+
+    int currentSum = 0;
+    for (int i = 0; i &lt; k; i++) {
+        currentSum += arr[i]; // First window
+    }
+
+    int maxSum = currentSum;
+    for (int i = k; i &lt; arr.size(); i++) {
+        currentSum += arr[i] - arr[i - k]; // Slide window: Add right, remove left
+        maxSum = max(maxSum, currentSum);
+    }
+    return maxSum;
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="kadanes" class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded">Pattern 3</span>
+                        <h3 class="text-2xl font-bold text-slate-900">Kadane's Algorithm</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm mt-1">Local dynamic programming choice for maximum contiguous subarray sum.</p>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900 font-mono">
+                    <strong class="text-amber-900 uppercase block font-bold">Mind Map:</strong>
+                    "Maintain running sum; if running sum drops below zero, reset to current element. A negative prefix pulls down future subarray sums."
+                </div>
+            </div>
+
+            <p class="text-slate-700 text-sm leading-relaxed">
+                Kadane's algorithm makes a greedy choice at every element $i$: Should we add $arr[i]$ to the existing running subarray, or dump the past prefix and start a new subarray fresh at $arr[i]$? Formula: <code>currentSum = max(arr[i], currentSum + arr[i])</code>.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-amber-600">&#9670;</span> Question Taxonomies & Triggers
+                    </h4>
+                    <ul class="space-y-2 text-xs text-slate-700">
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Classic Maximum Subarray Sum:</strong> Find contiguous subarray with largest sum in $O(N)$ time and $O(1)$ space.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Maximum Circular Subarray Sum:</strong> Subarray can wrap around end of array to start.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Maximum Product Subarray:</strong> Contiguous subarray with largest product (requires min/max product tracking).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Subarray Index Retrieval:</strong> Return actual starting and ending indices of the max subarray.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 rounded-xl p-5 border border-amber-200 space-y-3">
+                    <h4 class="font-bold text-amber-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-amber-600">&#9888;&#65039;</span> When & Where Tweaks Exist
+                    </h4>
+                    <ul class="space-y-2 text-xs text-amber-900">
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">1.</span>
+                            <div><strong>All Negative Numbers Edge Case:</strong> If initialized to 0, Kadane returns 0 for all negative arrays. <i>Tweak:</i> Initialize <code>currentSum = arr[0]</code> and <code>maxSum = arr[0]</code>.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">2.</span>
+                            <div><strong>Circular Array Wrapping Formula:</strong> Wrapped Max = <code>TotalSum - MinKadaneSubarraySum</code>. Final answer = <code>max(StandardKadane, TotalSum - MinKadane)</code>. If all numbers negative, return <code>StandardKadane</code>.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">3.</span>
+                            <div><strong>Max Product Subarray Tweak:</strong> Multiplying two negatives creates a positive! <i>Tweak:</i> Track BOTH <code>maxProd</code> and <code>minProd</code>, and swap them when encountering a negative number.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
+                <div class="bg-slate-800 px-4 py-3 flex items-center justify-between text-xs text-slate-300 font-mono">
+                    <div class="flex space-x-2">
+                        <button onclick="switchTemplate('kd-template-1')" class="kd-tab px-3 py-1 rounded bg-amber-600 text-white font-semibold">Standard Kadane's</button>
+                        <button onclick="switchTemplate('kd-template-2')" class="kd-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">Circular Max Sum</button>
+                        <button onclick="switchTemplate('kd-template-3')" class="kd-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">Max Product Subarray</button>
+                    </div>
+                    <button onclick="copyCode('kd-code-block')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-xs transition">Copy C++</button>
+                </div>
+                <div class="p-4 font-mono text-xs text-amber-200 overflow-x-auto">
+                    <pre id="kd-code-block"><code>int maxSubArray(vector&lt;int&gt;&amp; nums) {
+    if (nums.empty()) return 0;
+
+    int currentSum = nums[0];
+    int maxSum = nums[0];
+
+    for (size_t i = 1; i &lt; nums.size(); i++) {
+        // Decide: Add to existing sequence or start new from nums[i]?
+        currentSum = max(nums[i], currentSum + nums[i]);
+        maxSum = max(maxSum, currentSum);
+    }
+    return maxSum;
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="prefix-sum" class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-cyan-100 text-cyan-800 text-xs font-bold px-2.5 py-0.5 rounded">Pattern 4</span>
+                        <h3 class="text-2xl font-bold text-slate-900">Prefix Sum</h3>
+                    </div>
+                    <p class="text-slate-600 text-sm mt-1">Precompute cumulative values to perform instantaneous O(1) range queries.</p>
+                </div>
+                <div class="bg-cyan-50 border border-cyan-200 rounded-lg p-3 text-xs text-cyan-900 font-mono">
+                    <strong class="text-cyan-900 uppercase block font-bold">Mind Map:</strong>
+                    "Store cumulative sum array where P[i] = sum(arr[0...i-1]). Any contiguous range sum arr[L...R] equals P[R+1] - P[L]."
+                </div>
+            </div>
+
+            <p class="text-slate-700 text-sm leading-relaxed">
+                Prefix Sum shifts query time complexity from $O(N)$ down to $O(1)$ by doing $O(N)$ precomputation. When combined with Hash Maps, it allows finding non-contiguous history matches (such as subarrays summing to $K$ or divisible by $K$) even when array contains negative numbers.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 space-y-3">
+                    <h4 class="font-bold text-slate-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-cyan-600">&#9670;</span> Question Taxonomies & Triggers
+                    </h4>
+                    <ul class="space-y-2 text-xs text-slate-700">
+                        <li class="flex items-start">
+                            <span class="text-cyan-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Range Sum Queries (Immutable Array):</strong> Answer frequent range sum requests from index $L$ to $R$ in $O(1)$ time.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Subarray Sum Equals K:</strong> Find number of continuous subarrays that sum to $K$ (works with negative elements).</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-600 font-bold mr-2">&bull;</span>
+                            <div><strong>Subarrays Divisible by K:</strong> Count subarrays where total sum is divisible by $K$ using remainder maps.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-cyan-600 font-bold mr-2">&bull;</span>
+                            <div><strong>2D Range Sum Matrix:</strong> Sub-rectangle sum queries on static grids via inclusion-exclusion.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50 rounded-xl p-5 border border-amber-200 space-y-3">
+                    <h4 class="font-bold text-amber-900 text-sm uppercase tracking-wide flex items-center">
+                        <span class="mr-2 text-amber-600">&#9888;&#65039;</span> When & Where Tweaks Exist
+                    </h4>
+                    <ul class="space-y-2 text-xs text-amber-900">
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">1.</span>
+                            <div><strong>Map Initializer Tweak (Map[0] = 1):</strong> In "Subarray Sum = K", always seed Hash Map with <code>map[0] = 1</code>! This handles valid subarrays that begin exactly at index 0.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">2.</span>
+                            <div><strong>Negative Modulo Arithmetic Tweak:</strong> In C++, <code>-2 % 5 = -2</code>. In "Divisible by K" problems, normalize remainders: <code>rem = ((sum % k) + k) % k</code> to prevent missing map key lookups.</div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-amber-600 font-bold mr-2">3.</span>
+                            <div><strong>2D Grid Inclusion-Exclusion Formula:</strong> Query $(r1,c1)$ to $(r2,c2)$: <code>P[r2][c2] - P[r1-1][c2] - P[r2][c1-1] + P[r1-1][c1-1]</code>.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl overflow-hidden border border-slate-800">
+                <div class="bg-slate-800 px-4 py-3 flex items-center justify-between text-xs text-slate-300 font-mono">
+                    <div class="flex space-x-2">
+                        <button onclick="switchTemplate('ps-template-1')" class="ps-tab px-3 py-1 rounded bg-cyan-600 text-white font-semibold">1D Range Sum Class</button>
+                        <button onclick="switchTemplate('ps-template-2')" class="ps-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">Subarray Sum = K (Map)</button>
+                        <button onclick="switchTemplate('ps-template-3')" class="ps-tab px-3 py-1 rounded bg-slate-700 text-slate-300 hover:text-white">Subarray Divisible by K</button>
+                    </div>
+                    <button onclick="copyCode('ps-code-block')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1 rounded text-xs transition">Copy C++</button>
+                </div>
+                <div class="p-4 font-mono text-xs text-cyan-200 overflow-x-auto">
+                    <pre id="ps-code-block"><code>class NumArray {
+    vector&lt;int&gt; prefix;
+public:
+    NumArray(vector&lt;int&gt;&amp; nums) {
+        prefix.resize(nums.size() + 1, 0);
+        for (size_t i = 0; i &lt; nums.size(); i++) {
+            prefix[i + 1] = prefix[i] + nums[i]; // Build cumulative sum
+        }
+    }
+    
+    int sumRange(int left, int right) {
+        // Query sum from left to right inclusive in O(1)
+        return prefix[right + 1] - prefix[left];
+    }
+};</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulator-section" class="bg-slate-900 text-white rounded-2xl p-6 md:p-8 shadow-xl border border-slate-800 space-y-6">
+            <div class="border-b border-slate-800 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Interactive Visual Step Simulator</span>
+                    <h3 class="text-2xl font-bold text-white">Live Execution Step-by-Step</h3>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Select an algorithm pattern below to simulate pointer movements, window bounds, and running variables on Canvas.
+                    </p>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <select id="sim-pattern-select" onchange="initSimulator()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="tp">Two Pointers: Target Sum 18</option>
+                        <option value="sw">Sliding Window: Max Sum Size K=3</option>
+                        <option value="kd">Kadane's: Max Subarray Sum</option>
+                        <option value="ps">Prefix Sum: Build & Range Query [2, 4]</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div class="lg:col-span-3 space-y-4">
+                    <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 flex justify-center items-center min-h-[220px]">
+                        <canvas id="sim-canvas" width="700" height="200" class="w-full max-w-full h-auto"></canvas>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-800/60 p-4 rounded-xl border border-slate-800 text-xs font-mono">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="simStepPrev()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition">&#9664; Prev</button>
+                            <button id="sim-play-btn" onclick="simTogglePlay()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded font-bold transition">&#9654; Play</button>
+                            <button onclick="simStepNext()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition">Next &#9654;</button>
+                            <button onclick="initSimulator()" class="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white px-3 py-1.5 rounded border border-slate-700 transition">Reset</button>
+                        </div>
+                        <div class="text-slate-300">
+                            Step: <span id="sim-step-num" class="text-indigo-400 font-bold">0</span> / <span id="sim-step-total" class="text-slate-400">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 rounded-xl p-5 border border-slate-800 space-y-4 font-mono text-xs">
+                    <h4 class="text-slate-400 uppercase tracking-wider text-[10px] font-bold border-b border-slate-800 pb-2">Execution State</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Status:</span>
+                            <span id="sim-state-status" class="text-emerald-400 font-bold">Ready</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Variables:</span>
+                            <span id="sim-state-vars" class="text-indigo-300">left=0, right=5</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Current Metric:</span>
+                            <span id="sim-state-metric" class="text-amber-300">sum=17</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-800 pt-3">
+                        <span class="text-slate-500 block mb-1">Step Commentary:</span>
+                        <p id="sim-commentary" class="text-slate-300 leading-relaxed text-[11px] bg-slate-900 p-2.5 rounded border border-slate-800/80">
+                            Initialization complete. Click Play or Next to step through execution.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="matrix-section" class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200 space-y-6">
+            <div class="border-b border-slate-100 pb-4">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">Master Reference</span>
+                <h3 class="text-2xl font-bold text-slate-900">Master Tweaks & Edge Case Matrix</h3>
+                <p class="text-slate-600 text-sm mt-1">
+                    Quickly verify when standard algorithms fail and what explicit code tweaks are required.
+                </p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900 text-white font-mono uppercase text-[11px]">
+                            <th class="p-3 rounded-tl-lg">Pattern</th>
+                            <th class="p-3">Standard Condition</th>
+                            <th class="p-3">Where Logic Breaks</th>
+                            <th class="p-3">Required C++ Tweak</th>
+                            <th class="p-3 rounded-tr-lg">Time / Space</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 text-slate-700">
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold text-indigo-700">Two Pointers</td>
+                            <td class="p-3">Sorted Array Target Sum</td>
+                            <td class="p-3 text-red-600 font-semibold">Unsorted array OR duplicate triplets disallowed</td>
+                            <td class="p-3 font-mono text-[11px] bg-slate-50">Use HashMap OR sort & skip: <code>while(arr[i]==arr[i-1]) i++;</code></td>
+                            <td class="p-3 font-mono">O(N) / O(1)</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold text-emerald-700">Sliding Window</td>
+                            <td class="p-3">All Positive Elements Subarray Sum</td>
+                            <td class="p-3 text-red-600 font-semibold">Array contains negative numbers</td>
+                            <td class="p-3 font-mono text-[11px] bg-slate-50">Switch to <strong>Prefix Sum + HashMap</strong> or Monotonic Queue</td>
+                            <td class="p-3 font-mono">O(N) / O(N)</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold text-amber-700">Kadane's Algorithm</td>
+                            <td class="p-3">Standard Max Subarray Sum</td>
+                            <td class="p-3 text-red-600 font-semibold">All elements are negative OR circular boundary</td>
+                            <td class="p-3 font-mono text-[11px] bg-slate-50">Init to <code>arr[0]</code> (not 0); Circular = <code>max(Kadane, Total - MinKadane)</code></td>
+                            <td class="p-3 font-mono">O(N) / O(1)</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-3 font-bold text-cyan-700">Prefix Sum</td>
+                            <td class="p-3">Static Range Sum Queries</td>
+                            <td class="p-3 text-red-600 font-semibold">Subarrays starting at index 0 OR negative modulo</td>
+                            <td class="p-3 font-mono text-[11px] bg-slate-50">Seed map <code>map[0]=1</code>; Normalize mod: <code>((sum%k)+k)%k</code></td>
+                            <td class="p-3 font-mono">O(N) prep, O(1) query</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pt-6 border-t border-slate-100">
+                <h4 class="text-sm font-bold text-slate-900 mb-4 uppercase tracking-wider">Pattern Complexity Benchmarks</h4>
+                <div class="chart-container">
+                    <canvas id="complexityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p class="font-mono text-slate-300">DSA Patterns Explorer &bull; C++ Master Cheatsheet</p>
+            <p>Designed for rapid technical interview preparation and competitive programming revision.</p>
+        </div>
+    </footer>
+
+    <script>
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        const quizData = {
+            'sorted-pair-positives': {
+                pattern: 'Two Pointers (Opposite Ends)',
+                complexity: 'Time: O(N) | Space: O(1)',
+                desc: 'Array is sorted and positive. Initialize left at index 0 and right at index N-1. Shrink bounds based on target comparison.',
+                tweak: '&#9888;&#65039; Tweak: Ensure array is sorted. If original indices are required and sorting moves them, store index-value pairs first.'
+            },
+            'contiguous-max-sum-positives': {
+                pattern: 'Kadane\'s Algorithm OR Sliding Window',
+                complexity: 'Time: O(N) | Space: O(1)',
+                desc: 'For max contiguous sum on positives, simple sliding window or Kadane\'s running sum computes optimum in single pass.',
+                tweak: '&#9888;&#65039; Tweak: If looking for exact window size K, use Fixed Sliding Window. If searching global max, use Kadane\'s.'
+            },
+            'contiguous-exact-k-negatives': {
+                pattern: 'Prefix Sum + Hash Map',
+                complexity: 'Time: O(N) | Space: O(N)',
+                desc: 'Sliding window FAILS with negative numbers! Use Prefix Sum maintaining running cumulative sum with a frequency map of previous sums.',
+                tweak: '&#9888;&#65039; Critical Tweak: Always seed map with map[0] = 1 to catch valid subarrays starting at index 0.'
+            },
+            'static-range-range-o1-positives': {
+                pattern: '1D Prefix Sum Array',
+                complexity: 'Time: O(N) prep, O(1) query | Space: O(N)',
+                desc: 'Build prefix sum array prefix[i] = sum(arr[0..i-1]). Compute range sum L to R via prefix[R+1] - prefix[L].',
+                tweak: '&#9888;&#65039; Tweak: Use 1-based indexing for prefix array size N+1 to avoid out-of-bounds checks for L=0.'
+            },
+            'default': {
+                pattern: 'Two Pointers / Prefix Sum Hybrid',
+                complexity: 'Time: O(N log N) or O(N) | Space: O(1) to O(N)',
+                desc: 'Analyze whether array order is preserved. If contiguous sub-segment required with negative values, use Prefix Sum + Hash Map. If sorted, use Two Pointers.',
+                tweak: '&#9888;&#65039; Edge Case: Check if circular wrapping or duplicate skipping is required by problem statement.'
+            }
+        };
+
+        function updateQuizResult() {
+            const trait = document.getElementById('trait-input').value;
+            const goal = document.getElementById('goal-input').value;
+            const constraint = document.getElementById('constraint-input').value;
+
+            const key = `${trait}-${goal}-${constraint}`;
+            const res = quizData[key] || quizData['default'];
+
+            if (goal === 'exact-k' && constraint === 'negatives') {
+                document.getElementById('recommended-pattern').innerText = 'Prefix Sum + Hash Map';
+                document.getElementById('recommended-complexity').innerText = 'Time: O(N) | Space: O(N)';
+                document.getElementById('recommended-desc').innerText = 'Sliding window breaks on negative numbers! Track cumulative running sum in a Hash Map to find previous prefixes that satisfy: currentSum - target = previousPrefix.';
+                document.getElementById('recommended-tweak').innerHTML = '&#9888;&#65039; Critical Tweak: Seed hash map with map[0] = 1 before iterating to detect subarrays that start at index 0.';
+                return;
+            }
+
+            if (goal === 'max-sum' && constraint === 'circular') {
+                document.getElementById('recommended-pattern').innerText = 'Kadane\'s Algorithm (Circular Tweak)';
+                document.getElementById('recommended-complexity').innerText = 'Time: O(N) | Space: O(1)';
+                document.getElementById('recommended-desc').innerText = 'Max subarray sum in circular array can be unwrapped or wrapped across ends. Calculate max standard Kadane and min standard Kadane.';
+                document.getElementById('recommended-tweak').innerHTML = '&#9888;&#65039; Circular Formula: max(StandardKadane, TotalSum - MinKadane). If all numbers negative, return StandardKadane.';
+                return;
+            }
+
+            if (goal === 'range-o1') {
+                document.getElementById('recommended-pattern').innerText = 'Prefix Sum Precomputation';
+                document.getElementById('recommended-complexity').innerText = 'Time: O(N) Prep, O(1) Query | Space: O(N)';
+                document.getElementById('recommended-desc').innerText = 'Precalculate cumulative sums into an array. Range sum from index L to R is evaluated instantly as prefix[R+1] - prefix[L].';
+                document.getElementById('recommended-tweak').innerHTML = '&#9888;&#65039; Matrix Tweak: For 2D matrices, use inclusion-exclusion logic: P[r2][c2] - P[r1-1][c2] - P[r2][c1-1] + P[r1-1][c1-1].';
+                return;
+            }
+
+            document.getElementById('recommended-pattern').innerText = res.pattern;
+            document.getElementById('recommended-complexity').innerText = res.complexity;
+            document.getElementById('recommended-desc').innerText = res.desc;
+            document.getElementById('recommended-tweak').innerHTML = res.tweak;
+        }
+
+        document.getElementById('trait-input').addEventListener('change', updateQuizResult);
+        document.getElementById('goal-input').addEventListener('change', updateQuizResult);
+        document.getElementById('constraint-input').addEventListener('change', updateQuizResult);
+
+        const templates = {
+            'tp-template-1': `int twoPointersOpposite(vector<int>& arr, int target) {
+    // Array MUST be sorted for target sum search
+    int left = 0;
+    int right = arr.size() - 1;
+
+    while (left < right) {
+        int currentSum = arr[left] + arr[right];
+        if (currentSum == target) {
+            return 1; // Found pair
+        } else if (currentSum < target) {
+            left++; // Need larger sum, move left pointer right
+        } else {
+            right--; // Need smaller sum, move right pointer left
+        }
+    }
+    return 0; // Not found
+}`,
+            'tp-template-2': `int removeDuplicates(vector<int>& arr) {
+    if (arr.empty()) return 0;
+    
+    int slow = 0; // Insertion position index
+    for (int fast = 1; fast < arr.size(); fast++) {
+        if (arr[fast] != arr[slow]) {
+            slow++;
+            arr[slow] = arr[fast]; // Overwrite duplicate
+        }
+    }
+    return slow + 1; // Return new valid length
+}`,
+            'tp-template-3': `vector<vector<int>> threeSum(vector<int>& nums) {
+    vector<vector<int>> res;
+    sort(nums.begin(), nums.end()); // Must sort array first!
+    int n = nums.size();
+
+    for (int i = 0; i < n - 2; i++) {
+        // TWEAK: Skip duplicate values for first element
+        if (i > 0 && nums[i] == nums[i - 1]) continue;
+
+        int left = i + 1, right = n - 1;
+        while (left < right) {
+            int sum = nums[i] + nums[left] + nums[right];
+            if (sum == 0) {
+                res.push_back({nums[i], nums[left], nums[right]});
+                // TWEAK: Skip duplicate matching elements
+                while (left < right && nums[left] == nums[left + 1]) left++;
+                while (left < right && nums[right] == nums[right - 1]) right--;
+                left++; right--;
+            } else if (sum < 0) left++;
+            else right--;
+        }
+    }
+    return res;
+}`,
+            'sw-template-1': `int maxSubarraySumFixed(vector<int>& arr, int k) {
+    if (arr.size() < k) return 0;
+
+    int currentSum = 0;
+    for (int i = 0; i < k; i++) {
+        currentSum += arr[i]; // First window
+    }
+
+    int maxSum = currentSum;
+    for (int i = k; i < arr.size(); i++) {
+        currentSum += arr[i] - arr[i - k]; // Slide window: Add right, remove left
+        maxSum = max(maxSum, currentSum);
+    }
+    return maxSum;
+}`,
+            'sw-template-2': `int longestSubarrayWithSum(vector<int>& arr, int target) {
+    int left = 0;
+    int currentSum = 0;
+    int maxLength = 0;
+
+    for (int right = 0; right < arr.size(); right++) {
+        currentSum += arr[right]; // Expand window right
+
+        // Shrink window left if condition is violated
+        while (currentSum > target && left <= right) {
+            currentSum -= arr[left];
+            left++;
+        }
+
+        maxLength = max(maxLength, right - left + 1);
+    }
+    return maxLength;
+}`,
+            'sw-template-3': `int minSubArrayLen(int target, vector<int>& nums) {
+    int left = 0;
+    int currentSum = 0;
+    int minLen = INT_MAX;
+
+    for (int right = 0; right < nums.size(); right++) {
+        currentSum += nums[right];
+
+        // Shrink window left while condition IS satisfied to minimize size
+        while (currentSum >= target) {
+            minLen = min(minLen, right - left + 1);
+            currentSum -= nums[left];
+            left++;
+        }
+    }
+    return minLen == INT_MAX ? 0 : minLen;
+}`,
+            'kd-template-1': `int maxSubArray(vector<int>& nums) {
+    if (nums.empty()) return 0;
+
+    int currentSum = nums[0];
+    int maxSum = nums[0];
+
+    for (size_t i = 1; i < nums.size(); i++) {
+        // Decide: Add to existing sequence or start new from nums[i]?
+        currentSum = max(nums[i], currentSum + nums[i]);
+        maxSum = max(maxSum, currentSum);
+    }
+    return maxSum;
+}`,
+            'kd-template-2': `int maxSubarraySumCircular(vector<int>& nums) {
+    int totalSum = 0;
+    int curMax = 0, maxKadane = nums[0];
+    int curMin = 0, minKadane = nums[0];
+
+    for (int x : nums) {
+        curMax = max(x, curMax + x);
+        maxKadane = max(maxKadane, curMax);
+        curMin = min(x, curMin + x);
+        minKadane = min(minKadane, curMin);
+        totalSum += x;
+    }
+
+    // TWEAK: Edge case when all numbers are negative
+    return maxKadane > 0 ? max(maxKadane, totalSum - minKadane) : maxKadane;
+}`,
+            'kd-template-3': `int maxProduct(vector<int>& nums) {
+    if (nums.empty()) return 0;
+    int maxProd = nums[0], minProd = nums[0], result = nums[0];
+
+    for (size_t i = 1; i < nums.size(); i++) {
+        // TWEAK: Swap max and min product when encountering negative
+        if (nums[i] < 0) swap(maxProd, minProd);
+
+        maxProd = max(nums[i], maxProd * nums[i]);
+        minProd = min(nums[i], minProd * nums[i]);
+
+        result = max(result, maxProd);
+    }
+    return result;
+}`,
+            'ps-template-1': `class NumArray {
+    vector<int> prefix;
+public:
+    NumArray(vector<int>& nums) {
+        prefix.resize(nums.size() + 1, 0);
+        for (size_t i = 0; i < nums.size(); i++) {
+            prefix[i + 1] = prefix[i] + nums[i]; // Build cumulative sum
+        }
+    }
+    
+    int sumRange(int left, int right) {
+        // Query sum from left to right inclusive in O(1)
+        return prefix[right + 1] - prefix[left];
+    }
+};`,
+            'ps-template-2': `int subarraySum(vector<int>& nums, int k) {
+    unordered_map<int, int> prefixCounts;
+    prefixCounts[0] = 1; // CRITICAL TWEAK: Base case for sum starting at index 0
+
+    int currentSum = 0;
+    int count = 0;
+
+    for (int x : nums) {
+        currentSum += x;
+        int requiredPrefix = currentSum - k;
+
+        if (prefixCounts.find(requiredPrefix) != prefixCounts.end()) {
+            count += prefixCounts[requiredPrefix];
+        }
+        prefixCounts[currentSum]++;
+    }
+    return count;
+}`,
+            'ps-template-3': `int subarraysDivByK(vector<int>& nums, int k) {
+    unordered_map<int, int> modCounts;
+    modCounts[0] = 1; // Base case initialization
+
+    int currentSum = 0;
+    int count = 0;
+
+    for (int x : nums) {
+        currentSum += x;
+        // TWEAK: Normalize remainder for negative numbers in C++
+        int rem = ((currentSum % k) + k) % k;
+
+        if (modCounts.find(rem) != modCounts.end()) {
+            count += modCounts[rem];
+        }
+        modCounts[rem]++;
+    }
+    return count;
+}`
+        };
+
+        function switchTemplate(templateId) {
+            const prefix = templateId.substring(0, 2);
+            document.querySelectorAll(`.${prefix}-tab`).forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'bg-emerald-600', 'bg-amber-600', 'bg-cyan-600', 'text-white');
+                btn.classList.add('bg-slate-700', 'text-slate-300');
+            });
+
+            event.target.classList.remove('bg-slate-700', 'text-slate-300');
+            if (prefix === 'tp') event.target.classList.add('bg-indigo-600', 'text-white');
+            if (prefix === 'sw') event.target.classList.add('bg-emerald-600', 'text-white');
+            if (prefix === 'kd') event.target.classList.add('bg-amber-600', 'text-white');
+            if (prefix === 'ps') event.target.classList.add('bg-cyan-600', 'text-white');
+
+            const codeBlock = document.getElementById(`${prefix}-code-block`);
+            if (codeBlock && templates[templateId]) {
+                codeBlock.querySelector('code').innerText = templates[templateId];
+            }
+        }
+
+        function copyCode(blockId) {
+            const el = document.getElementById(blockId);
+            if (el) {
+                const text = el.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    const btn = event.target;
+                    const orig = btn.innerText;
+                    btn.innerText = 'Copied!';
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                    setTimeout(() => {
+                        btn.innerText = orig;
+                        btn.classList.remove('bg-emerald-600', 'text-white');
+                    }, 1500);
+                });
+            }
+        }
+
+        let simState = {
+            pattern: 'tp',
+            step: 0,
+            playing: false,
+            timer: null,
+            steps: []
+        };
+
+        const simScenarios = {
+            'tp': {
+                arr: [2, 4, 7, 11, 15, 18],
+                target: 18,
+                steps: [
+                    { left: 0, right: 5, sum: 20, status: 'Comparing bounds', commentary: 'Init: left=0 (val 2), right=5 (val 18). Sum = 20 > target 18. Move right pointer left.' },
+                    { left: 0, right: 4, sum: 17, status: 'Comparing bounds', commentary: 'Step 1: left=0 (val 2), right=4 (val 15). Sum = 17 < target 18. Move left pointer right.' },
+                    { left: 1, right: 4, sum: 19, status: 'Comparing bounds', commentary: 'Step 2: left=1 (val 4), right=4 (val 15). Sum = 19 > target 18. Move right pointer left.' },
+                    { left: 1, right: 3, sum: 15, status: 'Comparing bounds', commentary: 'Step 3: left=1 (val 4), right=3 (val 11). Sum = 15 < target 18. Move left pointer right.' },
+                    { left: 2, right: 3, sum: 18, status: 'FOUND TARGET!', commentary: 'Step 4: left=2 (val 7), right=3 (val 11). Sum = 18 == target 18. Target pair (7, 11) found!' }
+                ]
+            },
+            'sw': {
+                arr: [2, 1, 5, 1, 3, 2],
+                k: 3,
+                steps: [
+                    { window: [0, 2], sum: 8, max: 8, status: 'Window 1 [0..2]', commentary: 'Init first window size K=3: sum(2 + 1 + 5) = 8. Max = 8.' },
+                    { window: [1, 3], sum: 7, max: 8, status: 'Window 2 [1..3]', commentary: 'Slide right: remove arr[0]=2, add arr[3]=1. New sum = 8 - 2 + 1 = 7. Max stays 8.' },
+                    { window: [2, 4], sum: 9, max: 9, status: 'Window 3 [2..4]', commentary: 'Slide right: remove arr[1]=1, add arr[4]=3. New sum = 7 - 1 + 3 = 9. Max updated to 9!' },
+                    { window: [3, 5], sum: 6, max: 9, status: 'Window 4 [3..5]', commentary: 'Slide right: remove arr[2]=5, add arr[5]=2. New sum = 9 - 5 + 2 = 6. Max remains 9.' }
+                ]
+            },
+            'kd': {
+                arr: [-2, 1, -3, 4, -1, 2, 1, -5, 4],
+                steps: [
+                    { idx: 0, val: -2, cur: -2, max: -2, commentary: 'Start i=0 (val -2): curSum = -2, maxSum = -2.' },
+                    { idx: 1, val: 1, cur: 1, max: 1, commentary: 'i=1 (val 1): max(1, -2+1) = 1. Reset running sum! Max updated to 1.' },
+                    { idx: 2, val: -3, cur: -2, max: 1, commentary: 'i=2 (val -3): max(-3, 1-3) = -2. Max remains 1.' },
+                    { idx: 3, val: 4, cur: 4, max: 4, commentary: 'i=3 (val 4): max(4, -2+4) = 4. Reset running sum! Max updated to 4.' },
+                    { idx: 4, val: -1, cur: 3, max: 4, commentary: 'i=4 (val -1): max(-1, 4-1) = 3. Max remains 4.' },
+                    { idx: 5, val: 2, cur: 5, max: 5, commentary: 'i=5 (val 2): max(2, 3+2) = 5. Max updated to 5.' },
+                    { idx: 6, val: 1, cur: 6, max: 6, commentary: 'i=6 (val 1): max(1, 5+1) = 6. Max updated to 6 (sub-segment [4, -1, 2, 1]).' }
+                ]
+            },
+            'ps': {
+                arr: [3, 1, 4, 1, 5, 9],
+                steps: [
+                    { idx: 0, prefix: [0, 3, 0, 0, 0, 0, 0], status: 'Building Prefix', commentary: 'P[1] = P[0] + arr[0] = 0 + 3 = 3.' },
+                    { idx: 1, prefix: [0, 3, 4, 0, 0, 0, 0], status: 'Building Prefix', commentary: 'P[2] = P[1] + arr[1] = 3 + 1 = 4.' },
+                    { idx: 2, prefix: [0, 3, 4, 8, 0, 0, 0], status: 'Building Prefix', commentary: 'P[3] = P[2] + arr[2] = 4 + 4 = 8.' },
+                    { idx: 3, prefix: [0, 3, 4, 8, 9, 0, 0], status: 'Building Prefix', commentary: 'P[4] = P[3] + arr[3] = 8 + 1 = 9.' },
+                    { idx: 4, prefix: [0, 3, 4, 8, 9, 14, 0], status: 'Building Prefix', commentary: 'P[5] = P[4] + arr[4] = 9 + 5 = 14.' },
+                    { idx: 5, prefix: [0, 3, 4, 8, 9, 14, 23], status: 'Building Prefix', commentary: 'P[6] = P[5] + arr[5] = 14 + 9 = 23. Prefix array ready!' },
+                    { query: [2, 4], res: '14 - 4 = 10', prefix: [0, 3, 4, 8, 9, 14, 23], status: 'Query [2..4]', commentary: 'Query Range [2..4]: P[5] - P[2] = 14 - 4 = 10 (Elements: 4 + 1 + 5 = 10).' }
+                ]
+            }
+        };
+
+        function initSimulator() {
+            simState.pattern = document.getElementById('sim-pattern-select').value;
+            simState.step = 0;
+            simState.playing = false;
+            if (simState.timer) clearInterval(simState.timer);
+            document.getElementById('sim-play-btn').innerText = '▶ Play';
+
+            renderSimCanvas();
+        }
+
+        function simStepNext() {
+            const scenario = simScenarios[simState.pattern];
+            if (simState.step < scenario.steps.length - 1) {
+                simState.step++;
+                renderSimCanvas();
+            } else {
+                if (simState.playing) simTogglePlay();
+            }
+        }
+
+        function simStepPrev() {
+            if (simState.step > 0) {
+                simState.step--;
+                renderSimCanvas();
+            }
+        }
+
+        function simTogglePlay() {
+            simState.playing = !simState.playing;
+            const btn = document.getElementById('sim-play-btn');
+            if (simState.playing) {
+                btn.innerText = '⏸ Pause';
+                simState.timer = setInterval(() => {
+                    const scenario = simScenarios[simState.pattern];
+                    if (simState.step < scenario.steps.length - 1) {
+                        simStepNext();
+                    } else {
+                        simTogglePlay();
+                    }
+                }, 1400);
+            } else {
+                btn.innerText = '▶ Play';
+                if (simState.timer) clearInterval(simState.timer);
+            }
+        }
+
+        function renderSimCanvas() {
+            const canvas = document.getElementById('sim-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const scenario = simScenarios[simState.pattern];
+            const currentStep = scenario.steps[simState.step];
+
+            document.getElementById('sim-step-num').innerText = simState.step + 1;
+            document.getElementById('sim-step-total').innerText = scenario.steps.length;
+            document.getElementById('sim-commentary').innerText = currentStep.commentary;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const arr = scenario.arr;
+            const cellWidth = 55;
+            const cellHeight = 45;
+            const startX = (canvas.width - (arr.length * cellWidth)) / 2;
+            const startY = 80;
+
+            arr.forEach((val, i) => {
+                const x = startX + i * cellWidth;
+                const y = startY;
+
+                let bgColor = '#1e293b';
+                let borderColor = '#475569';
+                let textColor = '#f8fafc';
+
+                if (simState.pattern === 'tp') {
+                    if (i === currentStep.left || i === currentStep.right) {
+                        bgColor = '#312e81';
+                        borderColor = '#6366f1';
+                        textColor = '#818cf8';
+                    }
+                } else if (simState.pattern === 'sw') {
+                    if (i >= currentStep.window[0] && i <= currentStep.window[1]) {
+                        bgColor = '#064e3b';
+                        borderColor = '#10b981';
+                        textColor = '#34d399';
+                    }
+                } else if (simState.pattern === 'kd') {
+                    if (i === currentStep.idx) {
+                        bgColor = '#78350f';
+                        borderColor = '#f59e0b';
+                        textColor = '#fbbf24';
+                    }
+                } else if (simState.pattern === 'ps') {
+                    if (currentStep.query && i >= currentStep.query[0] && i <= currentStep.query[1]) {
+                        bgColor = '#164e63';
+                        borderColor = '#06b6d4';
+                        textColor = '#22d3ee';
+                    }
+                }
+
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(x, y, cellWidth - 4, cellHeight);
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, cellWidth - 4, cellHeight);
+
+                ctx.fillStyle = textColor;
+                ctx.font = 'bold 16px JetBrains Mono';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(val, x + (cellWidth - 4) / 2, y + cellHeight / 2);
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px JetBrains Mono';
+                ctx.fillText(`[${i}]`, x + (cellWidth - 4) / 2, y + cellHeight + 15);
+            });
+
+            ctx.font = 'bold 12px Inter';
+            if (simState.pattern === 'tp') {
+                const lx = startX + currentStep.left * cellWidth + (cellWidth - 4) / 2;
+                const rx = startX + currentStep.right * cellWidth + (cellWidth - 4) / 2;
+                
+                ctx.fillStyle = '#818cf8';
+                ctx.fillText('L ▲', lx, startY - 12);
+                ctx.fillText('R ▲', rx, startY - 12);
+
+                document.getElementById('sim-state-status').innerText = currentStep.status;
+                document.getElementById('sim-state-vars').innerText = `L=${currentStep.left}, R=${currentStep.right}`;
+                document.getElementById('sim-state-metric').innerText = `Sum = ${currentStep.sum}`;
+            } else if (simState.pattern === 'sw') {
+                document.getElementById('sim-state-status').innerText = currentStep.status;
+                document.getElementById('sim-state-vars').innerText = `Window=[${currentStep.window[0]}..${currentStep.window[1]}]`;
+                document.getElementById('sim-state-metric').innerText = `WinSum=${currentStep.sum} | Max=${currentStep.max}`;
+            } else if (simState.pattern === 'kd') {
+                document.getElementById('sim-state-status').innerText = `Element arr[${currentStep.idx}]`;
+                document.getElementById('sim-state-vars').innerText = `val=${currentStep.val}`;
+                document.getElementById('sim-state-metric').innerText = `curSum=${currentStep.cur} | maxSum=${currentStep.max}`;
+            } else if (simState.pattern === 'ps') {
+                document.getElementById('sim-state-status').innerText = currentStep.status;
+                document.getElementById('sim-state-vars').innerText = `Prefix Ready`;
+                document.getElementById('sim-state-metric').innerText = currentStep.res ? `Range Sum = ${currentStep.res}` : 'Building...';
+            }
+        }
+
+        window.addEventListener('load', () => {
+            updateQuizResult();
+            initSimulator();
+
+            const ctx = document.getElementById('complexityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Two Pointers', 'Sliding Window', 'Kadane\'s Algorithm', 'Prefix Sum (Prep)', 'Prefix Sum (Query)'],
+                    datasets: [
+                        {
+                            label: 'Time Complexity Factor',
+                            data: [1, 1, 1, 1, 0.1],
+                            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#06b6d4', '#3b82f6'],
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const labels = ['O(N) Time', 'O(N) Time', 'O(N) Time', 'O(N) Precomputation', 'O(1) Instant Query'];
+                                    return labels[context.dataIndex];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { display: false },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
